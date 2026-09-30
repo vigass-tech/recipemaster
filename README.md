@@ -2,6 +2,10 @@
 
 A modern, responsive full-stack culinary application built with **React (Vite)**, **Vanilla CSS Design System**, **Express.js**, and **MongoDB (Mongoose)** with instant in-memory fallback.
 
+> 📖 **[Read the Full Project Documentation (System Architecture, ER Diagrams, MVC & Case Study)](./DOCUMENTATION.md)**  
+> 🎥 **[Watch the Project Demo Video](https://drive.google.com/file/d/1sqVaimjlWNR3BNE3gP2JIIA6eGEMWjmX/view?usp=drive_link)**  
+> 🌐 **Live Website**: [https://recipemaster-ten.vercel.app](https://recipemaster-ten.vercel.app)
+
 ---
 
 ## ✨ Features
