@@ -35,35 +35,38 @@ let inMemoryUsers = [
   }
 ];
 
-// Connect to MongoDB
-async function initDatabase() {
-  console.log(`[Database] Attempting connection to MongoDB Atlas...`);
-  try {
-    await mongoose.connect(MONGODB_URI, { 
-      serverSelectionTimeoutMS: 8000,
-      family: 4, // Force IPv4 to fix Node 18+ DNS resolution SSL errors
-      tls: true
-    });
-    isMongoConnected = true;
-    console.log('[Database] ✅ Successfully connected to MongoDB!');
-    const count = await Recipe.countDocuments();
-    if (count === 0) {
-      console.log('[Database] 🌱 Seeding database with initial gourmet recipes...');
-      await Recipe.insertMany(seedRecipes);
-      console.log(`[Database] ✅ Seeded ${seedRecipes.length} recipes into MongoDB.`);
-    } else {
-      console.log(`[Database] 📚 Found ${count} existing recipes in MongoDB.`);
+// Vercel Serverless MongoDB Connection Middleware
+let isSeeding = false;
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    try {
+      await mongoose.connect(MONGODB_URI, { 
+        serverSelectionTimeoutMS: 8000,
+        family: 4,
+        tls: true
+      });
+      isMongoConnected = true;
+      console.log('[Database] ✅ Successfully connected to MongoDB!');
+      
+      if (!isSeeding) {
+        isSeeding = true;
+        const count = await Recipe.countDocuments();
+        if (count === 0) {
+          console.log('[Database] 🌱 Seeding database with initial gourmet recipes...');
+          await Recipe.insertMany(seedRecipes);
+          console.log(`[Database] ✅ Seeded ${seedRecipes.length} recipes into MongoDB.`);
+        }
+      }
+    } catch (err) {
+      isMongoConnected = false;
+      console.warn('[Database] ⚠️ MongoDB not reachable, using in-memory fallback.');
     }
-  } catch (err) {
-    isMongoConnected = false;
-    console.warn('[Database] ⚠️ MongoDB not reachable, using in-memory fallback.');
-    console.warn(`[Database] Reason: ${err.message}`);
-    // Auto-retry connection in 5 seconds
-    setTimeout(initDatabase, 5000);
+  } else {
+    isMongoConnected = true;
   }
-}
+  next();
+});
 
-initDatabase();
 
 // ─── AUTH MIDDLEWARE ───────────────────────────────────────────────────────────
 function authMiddleware(req, res, next) {
