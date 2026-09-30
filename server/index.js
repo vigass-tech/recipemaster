@@ -493,11 +493,15 @@ app.get('/api/dashboard', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.listen(PORT, () => {
-  console.log(`\n========================================`);
-  console.log(`🍳 RecipeMaster Backend Server`);
-  console.log(`📡 Listening on: http://localhost:${PORT}`);
-  console.log(`🔗 API Base: http://localhost:${PORT}/api/recipes`);
-  console.log(`📊 Status: http://localhost:${PORT}/api/status`);
-  console.log(`========================================\n`);
-});
+if (process.env.NODE_ENV !== 'production' || process.env.PORT) {
+  app.listen(PORT, () => {
+    console.log(`\n========================================`);
+    console.log(`🍳 RecipeMaster Backend Server`);
+    console.log(`📡 Listening on: http://localhost:${PORT}`);
+    console.log(`🔗 API Base: http://localhost:${PORT}/api/recipes`);
+    console.log(`📊 Status: http://localhost:${PORT}/api/status`);
+    console.log(`========================================\n`);
+  });
+}
+
+export default app;
